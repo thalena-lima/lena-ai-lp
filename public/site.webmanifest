@@ -1,0 +1,21 @@
+{
+  "name": "Lena AI",
+  "short_name": "Lena AI",
+  "description": "Arquitetura de IA para negócios — diagnóstico gratuito",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050507",
+  "theme_color": "#7C3AED",
+  "icons": [
+    {
+      "src": "/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

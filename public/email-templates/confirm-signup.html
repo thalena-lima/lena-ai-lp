@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm sign up — Lena Members</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c0d;
+      --surface:   #131316;
+      --card:      #18181c;
+      --border:    #27272c;
+      --border-2:  #313138;
+      --text:      #f0f0f2;
+      --muted:     #8b8b99;
+      --subtle:    #505060;
+      --accent:    #7c6dfa;
+      --accent-2:  #a78bfa;
+      --green:     #22c55e;
+      --red:       #f43f5e;
+      --yellow:    #f59e0b;
+      --radius:    8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      text-decoration: none;
+      padding-right: 20px;
+      border-right: 1px solid var(--border);
+      margin-right: 20px;
+    }
+    .logo-icon {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      flex: 1;
+    }
+    .breadcrumbs a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+    .breadcrumbs a:hover { color: var(--text); }
+    .breadcrumbs span { color: var(--subtle); }
+    .breadcrumbs .current { color: var(--text); font-weight: 500; }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c6dfa, #ec4899);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sidebar-section {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 8px;
+      margin-bottom: 6px;
+      margin-top: 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 150ms ease, color 150ms ease;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+    .nav-item:hover {
+      background: var(--card);
+      color: var(--text);
+    }
+    .nav-item.active {
+      background: rgba(124, 109, 250, 0.12);
+      color: var(--accent-2);
+      border-color: rgba(124, 109, 250, 0.2);
+      font-weight: 500;
+    }
+    .nav-item svg { flex-shrink: 0; opacity: 0.8; }
+    .nav-item.active svg { opacity: 1; }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-header {
+      padding: 28px 36px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .page-header p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .page-body {
+      padding: 28px 36px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── Editor panel ── */
+    .editor-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .field-label {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .field-label .required {
+      color: var(--red);
+      font-size: 11px;
+    }
+    .input-field {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+      width: 100%;
+    }
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 109, 250, 0.12);
+    }
+    .input-field::placeholder { color: var(--subtle); }
+
+    /* ── Code editor ── */
+    .code-wrapper {
+      position: relative;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color 150ms ease;
+    }
+    .code-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 109, 250, 0.12);
+    }
+    .code-toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .code-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--subtle);
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--border);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .code-toolbar-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 3px 9px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .code-toolbar-btn:hover {
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--border-2);
+    }
+    .code-area {
+      background: #0e0e12;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #c9c9e0;
+      padding: 16px;
+      min-height: 280px;
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: vertical;
+      tab-size: 2;
+    }
+    .code-area::selection { background: rgba(124, 109, 250, 0.3); }
+
+    /* ── Actions ── */
+    .actions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 4px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 150ms ease;
+      border: none;
+      outline: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #6c5de8; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--border-2);
+    }
+    .btn-danger-ghost {
+      background: transparent;
+      color: var(--red);
+      border: 1px solid transparent;
+    }
+    .btn-danger-ghost:hover {
+      background: rgba(244, 63, 94, 0.08);
+      border-color: rgba(244, 63, 94, 0.2);
+    }
+
+    /* ── Sidebar panel ── */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .info-card-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-card-header h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .info-card-body {
+      padding: 14px 16px;
+    }
+
+    /* ── Variables list ── */
+    .var-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .var-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .var-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent-2);
+      background: rgba(124, 109, 250, 0.1);
+      border: 1px solid rgba(124, 109, 250, 0.18);
+      border-radius: 4px;
+      padding: 2px 7px;
+      display: inline-block;
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+    .var-code:hover { background: rgba(124, 109, 250, 0.18); }
+    .var-desc {
+      font-size: 11.5px;
+      color: var(--muted);
+      padding-left: 2px;
+    }
+
+    /* ── Preview card ── */
+    .preview-shell {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .preview-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .preview-bar h3 {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .preview-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .dot-red    { background: #f43f5e; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green  { background: #22c55e; }
+    .preview-body {
+      padding: 20px 16px;
+    }
+    .email-preview {
+      background: #1e1e24;
+      border-radius: 8px;
+      border: 1px solid var(--border-2);
+      overflow: hidden;
+      font-size: 12px;
+    }
+    .email-header-bar {
+      background: #26262e;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .email-from {
+      font-size: 11px;
+      color: var(--subtle);
+      margin-bottom: 2px;
+    }
+    .email-from strong { color: var(--muted); }
+    .email-subject {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .email-body {
+      padding: 16px 14px;
+      color: #b0b0c0;
+      line-height: 1.65;
+      font-size: 12px;
+    }
+    .email-link {
+      display: inline-block;
+      margin-top: 12px;
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .email-footer {
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      font-size: 10.5px;
+      color: var(--subtle);
+    }
+
+    /* ── Status badge ── */
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+    .status-dot::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* ── Tooltip hint ── */
+    .hint {
+      font-size: 11.5px;
+      color: var(--subtle);
+      margin-top: 4px;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--subtle); }
+
+    @media (max-width: 900px) {
+      .page-body {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar" role="banner">
+    <a href="#" class="topbar-logo" aria-label="Lena Members home">
+      <div class="logo-icon" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      Lena Members
+    </a>
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="#">Configurações</a>
+      <span aria-hidden="true">/</span>
+      <a href="#">E-mail</a>
+      <span aria-hidden="true">/</span>
+      <span class="current">Confirm sign up</span>
+    </nav>
+    <div class="topbar-actions">
+      <div class="status-dot" title="Sistema operacional">Operacional</div>
+      <div class="avatar" role="img" aria-label="Conta do usuário" tabindex="0">LM</div>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Templates de e-mail">
+      <div class="sidebar-section">Templates</div>
+
+      <a href="#" class="nav-item active" aria-current="page">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.09 6.09l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        Confirm sign up
+      </a>
+
+      <a href="invite-user.html" class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/>
+          <line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+        Invite user
+      </a>
+
+      <a href="magic-link.html" class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Magic link
+      </a>
+
+      <a href="change-email.html" class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Change email address
+      </a>
+
+      <a href="reset-password.html" class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        Reset password
+      </a>
+
+      <a href="reauthentication.html" class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Reauthentication
+      </a>
+
+      <div class="divider" style="margin: 12px 8px;"></div>
+      <div class="sidebar-section">Configurações</div>
+
+      <a href="#" class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93A10 10 0 0 0 6.99 3.34L6 5a2 2 0 0 1-2 .56 2 2 0 0 0-2 2 10 10 0 0 0 .54 6.25l.96 1.58a2 2 0 0 1 0 2.22l-.96 1.58A10 10 0 0 0 12 22a10 10 0 0 0 8.66-5l-.96-1.58a2 2 0 0 1 0-2.22l.96-1.58A10 10 0 0 0 19.07 4.93z"/>
+        </svg>
+        SMTP personalizado
+      </a>
+    </aside>
+
+    <!-- Main -->
+    <main class="main" id="main-content">
+      <div class="page-header">
+        <h1>Confirm sign up</h1>
+        <p>E-mail enviado quando um novo membro precisa confirmar o endereço de e-mail após o cadastro.</p>
+      </div>
+
+      <div class="page-body">
+
+        <!-- Editor -->
+        <section class="editor-panel" aria-label="Editor de template">
+
+          <!-- Assunto -->
+          <div class="field-group">
+            <label class="field-label" for="subject">
+              Assunto
+              <span class="required" aria-label="obrigatório">*</span>
+            </label>
+            <input
+              id="subject"
+              type="text"
+              class="input-field"
+              value="Confirme seu e-mail — {{ .SiteName }}"
+              placeholder="Assunto do e-mail"
+              spellcheck="false"
+            />
+            <p class="hint">Você pode usar variáveis como <code style="font-family:'JetBrains Mono',monospace;color:var(--accent-2);font-size:11px;">{{ .SiteName }}</code> no assunto.</p>
+          </div>
+
+          <!-- Corpo HTML -->
+          <div class="field-group">
+            <label class="field-label" for="body">
+              Corpo (HTML)
+              <span class="required" aria-label="obrigatório">*</span>
+            </label>
+            <div class="code-wrapper">
+              <div class="code-toolbar">
+                <div class="code-toolbar-left">
+                  <span class="lang-badge">HTML</span>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <button class="code-toolbar-btn" type="button" aria-label="Formatar código">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    Formatar
+                  </button>
+                  <button class="code-toolbar-btn" type="button" aria-label="Copiar código">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copiar
+                  </button>
+                </div>
+              </div>
+              <textarea
+                id="body"
+                class="code-area"
+                aria-label="Corpo HTML do e-mail"
+                spellcheck="false"
+                autocorrect="off"
+                autocapitalize="off"
+              ><html>
+  <body style="font-family:sans-serif;background:#f4f4f5;padding:32px;">
+    <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+      <div style="background:#7c6dfa;padding:28px 32px;">
+        <h1 style="color:#fff;margin:0;font-size:22px;">
+          {{ .SiteName }}
+        </h1>
+      </div>
+
+      <div style="padding:32px;">
+        <p style="color:#374151;font-size:15px;margin:0 0 16px;">
+          Olá! Você se cadastrou na <strong>{{ .SiteName }}</strong>.
+          Para ativar seu acesso, confirme o endereço de e-mail clicando
+          no botão abaixo.
+        </p>
+
+        <a href="{{ .ConfirmationURL }}"
+           style="display:inline-block;background:#7c6dfa;color:#fff;
+                  padding:12px 26px;border-radius:7px;text-decoration:none;
+                  font-size:14px;font-weight:600;margin-top:8px;">
+          Confirmar e-mail
+        </a>
+
+        <p style="color:#9ca3af;font-size:12px;margin-top:24px;">
+          O link expira em 24 horas. Se você não criou esta conta,
+          ignore este e-mail.
+        </p>
+      </div>
+
+      <div style="background:#f9fafb;padding:16px 32px;border-top:1px solid #e5e7eb;">
+        <p style="color:#9ca3af;font-size:11px;margin:0;">
+          © {{ .CurrentYear }} {{ .SiteName }}. Todos os direitos reservados.
+        </p>
+      </div>
+
+    </div>
+  </body>
+</html></textarea>
+            </div>
+          </div>
+
+          <!-- Ações -->
+          <div class="actions-bar">
+            <button class="btn btn-danger-ghost" type="button" aria-label="Restaurar template padrão">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+              Restaurar padrão
+            </button>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost" type="button">Cancelar</button>
+              <button class="btn btn-primary" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Salvar template
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- Painel lateral -->
+        <aside class="side-panel" aria-label="Variáveis e preview">
+
+          <!-- Preview -->
+          <div class="preview-shell">
+            <div class="preview-bar">
+              <div class="preview-dots" aria-hidden="true">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+              </div>
+              <h3>Preview</h3>
+              <button class="code-toolbar-btn" type="button" style="font-size:10.5px;" aria-label="Abrir preview em nova aba">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Expandir
+              </button>
+            </div>
+            <div class="preview-body">
+              <div class="email-preview" role="region" aria-label="Preview do e-mail">
+                <div class="email-header-bar">
+                  <div class="email-from">De: <strong>noreply@lenamembers.com</strong></div>
+                  <div class="email-subject">Confirme seu e-mail — Lena Members</div>
+                </div>
+                <div class="email-body">
+                  <p>Olá! Você se cadastrou na <strong>Lena Members</strong>. Para ativar seu acesso, confirme o endereço de e-mail clicando no botão abaixo.</p>
+                  <a href="#" class="email-link" tabindex="-1" aria-hidden="true">Confirmar e-mail</a>
+                  <p style="margin-top:14px;font-size:11px;color:#60607a;">O link expira em 24 horas. Se você não criou esta conta, ignore este e-mail.</p>
+                </div>
+                <div class="email-footer">© 2025 Lena Members. Todos os direitos reservados.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Variáveis -->
+          <div class="info-card">
+            <div class="info-card-header">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <h3>Variáveis disponíveis</h3>
+            </div>
+            <div class="info-card-body">
+              <div class="var-list" role="list">
+                <div class="var-item" role="listitem">
+                  <span class="var-code" tabindex="0" title="Clique para copiar" role="button">{{ .ConfirmationURL }}</span>
+                  <span class="var-desc">Link de confirmação de e-mail</span>
+                </div>
+                <div class="var-item" role="listitem">
+                  <span class="var-code" tabindex="0" title="Clique para copiar" role="button">{{ .SiteName }}</span>
+                  <span class="var-desc">Nome da plataforma</span>
+                </div>
+                <div class="var-item" role="listitem">
+                  <span class="var-code" tabindex="0" title="Clique para copiar" role="button">{{ .Email }}</span>
+                  <span class="var-desc">E-mail do usuário</span>
+                </div>
+                <div class="var-item" role="listitem">
+                  <span class="var-code" tabindex="0" title="Clique para copiar" role="button">{{ .Token }}</span>
+                  <span class="var-desc">Token OTP (6 dígitos)</span>
+                </div>
+                <div class="var-item" role="listitem">
+                  <span class="var-code" tabindex="0" title="Clique para copiar" role="button">{{ .CurrentYear }}</span>
+                  <span class="var-desc">Ano atual para rodapé</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info card -->
+          <div class="info-card">
+            <div class="info-card-header">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <h3>Comportamento</h3>
+            </div>
+            <div class="info-card-body">
+              <p style="font-size:12px;color:var(--muted);line-height:1.65;">
+                Este e-mail é disparado automaticamente quando um novo usuário se cadastra com <strong style="color:var(--text);">confirmação obrigatória</strong> ativada nas configurações de autenticação.
+              </p>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:12px;color:var(--muted);">Expiração do link</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:500;">24 horas</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:12px;color:var(--muted);">Envios (hoje)</span>
+                  <span style="font-size:12px;color:var(--green);font-weight:500;">47</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:12px;color:var(--muted);">Taxa de abertura</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:500;">68,4%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>
