@@ -70,6 +70,10 @@ const GradientBlinds: React.FC<GradientBlindsProps> = ({
     let cleanupFn: (() => void) | null = null;
 
     const initTimeout = setTimeout(() => {
+      if (typeof window !== "undefined" && window.innerWidth < 768) {
+        return; // Nunca inicia o renderWebgl pesado no celular (pois ele fica invisível de qualquer forma via CSS).
+      }
+
       const container = containerRef.current;
       if (!container) return;
 
