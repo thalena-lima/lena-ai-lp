@@ -67,16 +67,19 @@ const GradientBlinds: React.FC<GradientBlindsProps> = ({
   const firstResizeRef = useRef<boolean>(true);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    let cleanupFn: (() => void) | null = null;
 
-    const renderer = new Renderer({
-      dpr: dpr ?? (typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 1.5) : 1),
-      alpha: true,
-      antialias: true
-    });
-    rendererRef.current = renderer;
-    const gl = renderer.gl;
+    const initTimeout = setTimeout(() => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const renderer = new Renderer({
+        dpr: dpr ?? (typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 1.5) : 1),
+        alpha: true,
+        antialias: true
+      });
+      rendererRef.current = renderer;
+      const gl = renderer.gl;
     const canvas = gl.canvas as HTMLCanvasElement;
 
     canvas.style.width = '100%';
@@ -350,18 +353,19 @@ void main() {
     };
     rafRef.current = requestAnimationFrame(loop);
 
-    return () => {
+    const callIfFn = <T extends object, K extends keyof T>(obj: T | null, key: K) => {
+      if (obj && typeof obj[key] === 'function') {
+        (obj[key] as unknown as () => void).call(obj);
+      }
+    };
+    
+    cleanupFn = () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener('pointermove', onPointerMove);
       ro.disconnect();
       if (canvas.parentElement === container) {
         container.removeChild(canvas);
       }
-      const callIfFn = <T extends object, K extends keyof T>(obj: T | null, key: K) => {
-        if (obj && typeof obj[key] === 'function') {
-          (obj[key] as unknown as () => void).call(obj);
-        }
-      };
       callIfFn(programRef.current, 'remove');
       callIfFn(geometryRef.current, 'remove');
       callIfFn(meshRef.current as unknown as { remove?: () => void }, 'remove');
@@ -371,7 +375,14 @@ void main() {
       meshRef.current = null;
       rendererRef.current = null;
     };
-  }, [
+
+  }, 2000);
+
+  return () => {
+    clearTimeout(initTimeout);
+    if (cleanupFn) cleanupFn();
+  };
+}, [
     dpr,
     paused,
     gradientColors,
