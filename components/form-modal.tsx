@@ -1,8 +1,136 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, CheckCircle2 } from "lucide-react";
+import { X, CheckCircle2, ChevronDown } from "lucide-react";
+
+type Country = {
+  name: string;
+  flag: string;
+  code: string; // e.g. "+55"
+  iso: string;  // e.g. "BR"
+};
+
+const COUNTRIES: Country[] = [
+  { name: "Brasil", flag: "🇧🇷", code: "+55", iso: "BR" },
+  { name: "Portugal", flag: "🇵🇹", code: "+351", iso: "PT" },
+  { name: "Estados Unidos", flag: "🇺🇸", code: "+1", iso: "US" },
+  { name: "Argentina", flag: "🇦🇷", code: "+54", iso: "AR" },
+  { name: "Espanha", flag: "🇪🇸", code: "+34", iso: "ES" },
+  { name: "México", flag: "🇲🇽", code: "+52", iso: "MX" },
+  { name: "Colômbia", flag: "🇨🇴", code: "+57", iso: "CO" },
+  { name: "Chile", flag: "🇨🇱", code: "+56", iso: "CL" },
+  { name: "Uruguai", flag: "🇺🇾", code: "+598", iso: "UY" },
+  { name: "Paraguai", flag: "🇵🇾", code: "+595", iso: "PY" },
+  { name: "Bolívia", flag: "🇧🇴", code: "+591", iso: "BO" },
+  { name: "Peru", flag: "🇵🇪", code: "+51", iso: "PE" },
+  { name: "Equador", flag: "🇪🇨", code: "+593", iso: "EC" },
+  { name: "Venezuela", flag: "🇻🇪", code: "+58", iso: "VE" },
+  { name: "Panamá", flag: "🇵🇦", code: "+507", iso: "PA" },
+  { name: "Costa Rica", flag: "🇨🇷", code: "+506", iso: "CR" },
+  { name: "El Salvador", flag: "🇸🇻", code: "+503", iso: "SV" },
+  { name: "Guatemala", flag: "🇬🇹", code: "+502", iso: "GT" },
+  { name: "Honduras", flag: "🇭🇳", code: "+504", iso: "HN" },
+  { name: "República Dominicana", flag: "🇩🇴", code: "+1809", iso: "DO" },
+  { name: "Cuba", flag: "🇨🇺", code: "+53", iso: "CU" },
+  { name: "Canadá", flag: "🇨🇦", code: "+1", iso: "CA" },
+  { name: "Reino Unido", flag: "🇬🇧", code: "+44", iso: "GB" },
+  { name: "França", flag: "🇫🇷", code: "+33", iso: "FR" },
+  { name: "Alemanha", flag: "🇩🇪", code: "+49", iso: "DE" },
+  { name: "Itália", flag: "🇮🇹", code: "+39", iso: "IT" },
+  { name: "Japão", flag: "🇯🇵", code: "+81", iso: "JP" },
+  { name: "China", flag: "🇨🇳", code: "+86", iso: "CN" },
+  { name: "Índia", flag: "🇮🇳", code: "+91", iso: "IN" },
+  { name: "Angola", flag: "🇦🇴", code: "+244", iso: "AO" },
+  { name: "Moçambique", flag: "🇲🇿", code: "+258", iso: "MZ" },
+  { name: "Cabo Verde", flag: "🇨🇻", code: "+238", iso: "CV" },
+];
+
+function CountryPicker({
+  value,
+  onChange,
+}: {
+  value: Country;
+  onChange: (c: Country) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  const filtered = COUNTRIES.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.code.includes(search),
+  );
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => { setOpen((o) => !o); setSearch(""); }}
+        className="flex h-full min-h-[50px] items-center gap-1.5 border border-white/10 bg-[#111114] px-3 text-white transition-colors hover:border-[var(--accent)] focus:border-[var(--accent)] focus:outline-none"
+        aria-label="Selecionar país"
+      >
+        <span className="text-xl leading-none">{value.flag}</span>
+        <span className="font-mono text-xs text-white/70">{value.code}</span>
+        <ChevronDown
+          className={`size-3.5 text-white/40 transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 w-64 border border-white/10 bg-[#0d0d10] shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          {/* Search */}
+          <div className="border-b border-white/10 p-2">
+            <input
+              autoFocus
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar país ou código..."
+              className="w-full bg-[#111114] px-3 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none"
+            />
+          </div>
+          {/* List */}
+          <ul className="max-h-56 overflow-y-auto" role="listbox">
+            {filtered.length === 0 ? (
+              <li className="px-4 py-3 text-xs text-white/40">Nenhum país encontrado</li>
+            ) : (
+              filtered.map((c) => (
+                <li
+                  key={c.iso}
+                  role="option"
+                  aria-selected={c.iso === value.iso}
+                  onClick={() => { onChange(c); setOpen(false); setSearch(""); }}
+                  className={`flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-white/5 ${
+                    c.iso === value.iso ? "bg-[var(--accent)]/10 text-[var(--accent)]" : "text-white/80"
+                  }`}
+                >
+                  <span className="text-base">{c.flag}</span>
+                  <span className="flex-1 truncate">{c.name}</span>
+                  <span className="font-mono text-xs text-white/40">{c.code}</span>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
@@ -128,6 +256,7 @@ export function FormModal() {
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [countdown, setCountdown] = useState(3);
+  const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRIES[0]); // Brazil default
 
   useEffect(() => {
     getTrackingParams();
@@ -192,10 +321,14 @@ export function FormModal() {
     const form = event.currentTarget;
     const formData = new FormData(form);
 
+    const rawPhone = normalizePhoneNumber(String(formData.get("phone_number") ?? ""));
+    const countryCode = normalizePhoneNumber(selectedCountry.code);
+    const fullPhone = `${countryCode}${rawPhone}`;
+
     const payload = {
       name: String(formData.get("name") ?? "").trim(),
       email: String(formData.get("email") ?? "").trim(),
-      phone_number: normalizePhoneNumber(String(formData.get("phone_number") ?? "")),
+      phone_number: fullPhone,
       ...getTrackingParams(),
     };
 
@@ -314,15 +447,21 @@ export function FormModal() {
                 >
                   WhatsApp
                 </label>
-                <input
-                  required
-                  type="tel"
-                  id="phone_number"
-                  name="phone_number"
-                  autoComplete="tel"
-                  className="w-full rounded-none border border-white/10 bg-[#111114] p-3 text-white transition-colors placeholder:text-white/20 focus:border-[var(--accent)] focus:outline-none lg:p-4"
-                  placeholder="(11) 99999-9999"
-                />
+                <div className="flex items-stretch gap-0">
+                  <CountryPicker
+                    value={selectedCountry}
+                    onChange={setSelectedCountry}
+                  />
+                  <input
+                    required
+                    type="tel"
+                    id="phone_number"
+                    name="phone_number"
+                    autoComplete="tel"
+                    className="min-w-0 flex-1 rounded-none border border-l-0 border-white/10 bg-[#111114] p-3 text-white transition-colors placeholder:text-white/20 focus:border-[var(--accent)] focus:outline-none lg:p-4"
+                    placeholder={selectedCountry.iso === "BR" ? "(11) 99999-9999" : "Número sem código"}
+                  />
+                </div>
               </div>
 
               {feedbackMessage ? (
